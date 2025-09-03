@@ -1,4 +1,3 @@
-
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
@@ -21,7 +20,8 @@ export const SocketProvider = ({ children }) => {
       return;
     }
 
-    console.log("Creating socket connection with token:", token);
+    console.log("🔌 Connecting socket with token:", token);
+
     const newSocket = io("http://localhost:3001", {
       auth: { token },
     });
@@ -40,6 +40,11 @@ export const SocketProvider = ({ children }) => {
       console.error("⚠️ Socket error:", error);
     });
 
+    // Listen for incoming messages
+    newSocket.on("receive_message", (message) => {
+      console.log("📩 New message:", message);
+    });
+
     setSocket(newSocket);
 
     return () => {
@@ -47,20 +52,24 @@ export const SocketProvider = ({ children }) => {
     };
   }, [token]);
 
+  // --- Actions ---
   const joinRoom = (roomId) => {
     if (socket && isConnected) {
+      console.log(`➡️ Joining room ${roomId}`);
       socket.emit("join_room", { roomId });
     }
   };
 
   const leaveRoom = (roomId) => {
     if (socket && isConnected) {
+      console.log(`⬅️ Leaving room ${roomId}`);
       socket.emit("leave_room", { roomId });
     }
   };
 
   const sendMessage = (roomId, content) => {
     if (socket && isConnected) {
+      console.log(`✉️ Sending message to ${roomId}:`, content);
       socket.emit("send_message", { roomId, content });
     }
   };
@@ -70,8 +79,7 @@ export const SocketProvider = ({ children }) => {
       socket.emit("mark_read", { roomId });
     }
   };
- 
-    
+
   return (
     <SocketContext.Provider
       value={{
