@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async (jwt) => {
     try {
-      const res = await fetch("http://localhost:3000/api/users/me", {
+      const res = await fetch("/api/users/me", {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },

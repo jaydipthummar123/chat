@@ -18,8 +18,8 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       const endpoint = isLogin
-        ? "http://localhost:3000/api/auth/login"
-        : "http://localhost:3000/api/auth/register";
+        ? "/api/auth/login"
+        : "/api/auth/register";
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -42,7 +42,7 @@ export default function AuthPage() {
       resetForm();
     } catch (err) {
       console.error(err);
-      toast.error(err.message); (err.message);
+      toast.error(err.message);
     } finally {
       setIsLoading(false);
       setSubmitting(false);

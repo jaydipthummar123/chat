@@ -117,10 +117,14 @@ const ChatRoomClient = ({ roomId, roomName, user }) => {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/auth/register");
+      const res = await fetch("/api/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.ok) {
         const data = await res.json();
-        setUsers(data.users);
+        setUsers(data.users || []);
       }
     } catch (error) {
       console.error("Error fetching users:", error);
