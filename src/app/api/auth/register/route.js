@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 import db from "@/lib/db";
 import { userSchema } from "@/validation/joivalidation/usersSchema";
 import bcrypt from "bcryptjs";

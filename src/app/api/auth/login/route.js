@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 import db from "@/lib/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";

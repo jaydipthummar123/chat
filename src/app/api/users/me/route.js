@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 import { verifyToken } from "@/lib/auth";
 
 export const GET = async (req) => {

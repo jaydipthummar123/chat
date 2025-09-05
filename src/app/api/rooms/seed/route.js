@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 import db from "@/lib/db";
 
 // This endpoint creates default rooms and adds all existing users to them
