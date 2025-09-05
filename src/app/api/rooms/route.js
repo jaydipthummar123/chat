@@ -1,4 +1,9 @@
 // Add users to a room (room admin only)
+import { verifyToken } from "@/middleware/auth";
+import db from "@/lib/db";
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export const PUT = async (req) => {
   const auth = verifyToken(req);
   if (auth.error) {
@@ -9,7 +14,6 @@ export const PUT = async (req) => {
     if (!roomId || !Array.isArray(userIds) || userIds.length === 0) {
       return Response.json({ error: "roomId and userIds are required" }, { status: 400 });
     }
-    // Check if requester is admin of the room
     const [adminCheck] = await db.query(
       "SELECT role FROM room_members WHERE room_id = ? AND user_id = ?",
       [roomId, auth.user.id]
@@ -17,7 +21,6 @@ export const PUT = async (req) => {
     if (!adminCheck.length || adminCheck[0].role !== "admin") {
       return Response.json({ error: "Only room admin can add users" }, { status: 403 });
     }
-    // Add each user to the room
     for (const uid of userIds) {
       await db.query(
         "INSERT IGNORE INTO room_members (room_id, user_id, role) VALUES (?, ?, 'member')",
@@ -29,10 +32,6 @@ export const PUT = async (req) => {
     return Response.json({ error: error.message }, { status: 500 });
   }
 };
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-import { verifyToken } from "@/middleware/auth";
-import db from "@/lib/db";
 
 export const GET = async (req) => {
   const auth = verifyToken(req);

@@ -7,11 +7,15 @@ let io; // Prevent multiple instances
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return new Response("Socket disabled in production route; use external server.", { status: 200 });
+  }
+
   if (!io) {
-    console.log("🚀 Starting Socket.IO server...");
+    console.log("🚀 Starting Socket.IO server (dev only)...");
 
     io = new IOServer(3001, {
-      cors: { origin: "*" }, // ⚠️ Replace "*" with your frontend domain in production
+      cors: { origin: "*" },
       path: "/api/socket",
     });
 

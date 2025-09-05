@@ -12,14 +12,15 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const recordingsDir = path.join(process.cwd(), 'public', 'recordings');
+    const baseDir = process.env.NODE_ENV === 'production' ? '/tmp' : process.cwd();
+    const recordingsDir = path.join(baseDir, 'recordings');
     await fs.promises.mkdir(recordingsDir, { recursive: true });
     const filePath = path.join(recordingsDir, filename);
 
     const buffer = Buffer.from(base64, 'base64');
     await fs.promises.writeFile(filePath, buffer);
 
-    const relPath = `/recordings/${filename}`;
+    const relPath = process.env.NODE_ENV === 'production' ? `/api/recordings?file=${encodeURIComponent(filename)}` : `/recordings/${filename}`;
 
     try {
       await db.query(
