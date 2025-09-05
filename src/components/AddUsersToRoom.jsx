@@ -122,6 +122,7 @@
 
 // export default AddUsersToRoom;
 import { useAuth } from "@/context/AuthContext";
+import { Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -212,16 +213,11 @@ const AddUsersToRoom = ({ roomId, currentUserId }) => {
       {/* Enhanced Trigger Button */}
       <button
         onClick={handleOpen}
-        className="group relative  cursor-pointer px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium
-                   hover:from-blue-600 hover:to-blue-700 hover:scale-105 hover:shadow-lg 
-                   transform transition-all duration-200 ease-out
-                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                   active:scale-95"
+        className="group relative  cursor-pointer   font-medium
+                   group flex items-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded-xl hover:from-cyan-400 hover:to-blue-400 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25"
       >
         <span className="flex items-center gap-2">
-          <span className="text-lg group-hover:rotate-12 transition-transform duration-200">
-            ➕
-          </span>
+          <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform duration-200" />
           Add Users
         </span>
       </button>

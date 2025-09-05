@@ -7,13 +7,16 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null); // ✅ user state add
+  const [isAuthReady, setIsAuthReady] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     if (savedToken) {
       setToken(savedToken);
-      fetchUser(savedToken); // ✅ user fetch karo
+      fetchUser(savedToken); 
+    } else {
+      setIsAuthReady(true);
     }
   }, []);
 
@@ -35,12 +38,14 @@ export const AuthProvider = ({ children }) => {
       console.error("Error fetching user:", err);
       setUser(null);
     }
+    setIsAuthReady(true);
   };
 
   const login = (jwt) => {
     localStorage.setItem("token", jwt);
     setToken(jwt);
     fetchUser(jwt); // ✅ fetch user on login
+    setIsAuthReady(true);
     router.push("/chat");
   };
 
@@ -48,11 +53,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     setToken(null);
     setUser(null); 
+    setIsAuthReady(true);
     router.push("/");
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout }}>
+    <AuthContext.Provider value={{ token, user, isAuthReady, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

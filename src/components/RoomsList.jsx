@@ -138,13 +138,7 @@ const RoomsList = () => {
             ></span>
           </div>
         </button>
-        <div className="flex items-center space-x-3">
-          <MessageSquare className="h-6 w-6 text-cyan-400" />
-          <h2 className="text-lg font-semibold text-slate-100">Rooms</h2>
-          <span className="bg-slate-700 text-cyan-400 px-2 py-1 rounded-full text-xs font-medium">
-            {rooms.length}
-          </span>
-        </div>
+      
       </div>
 
       {/* Backdrop for mobile */}

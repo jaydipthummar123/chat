@@ -14,14 +14,19 @@ import {
   Check,
   CheckCheck,
   Plus,
+  Video,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import AddUsersToRoom from "./AddUsersToRoom";
+
+import { useRouter } from "next/navigation";
 import EmojiPicker from "emoji-picker-react";
+import Link from "next/link";
 
 const ChatRoomClient = ({ roomId, roomName, user }) => {
   const { socket, joinRoom, leaveRoom, sendMessage, markAsRead } = useSocket();
   const { token } = useAuth();
+  const router = useRouter();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -33,19 +38,21 @@ const ChatRoomClient = ({ roomId, roomName, user }) => {
   const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
   const [users, setUsers] = useState([]);
- const handleEmojiClick = (emojiData) => {
-  const emoji = emojiData.emoji;
-  const input = inputRef.current;
-  if (input) {
-    const start = input.selectionStart;
-    const end = input.selectionEnd;
-    const updatedText = newMessage.substring(0, start) + emoji + newMessage.substring(end);
-    setNewMessage(updatedText);
-  } else {f45gr
-    setNewMessage((prev) => prev + emoji);
-  }
-  setShowEmojiPicker(false);
-};
+  const [incomingCall, setIncomingCall] = useState(null);
+  const handleEmojiClick = (emojiData) => {
+    const emoji = emojiData.emoji;
+    const input = inputRef.current;
+    if (input) {
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      const updatedText =
+        newMessage.substring(0, start) + emoji + newMessage.substring(end);
+      setNewMessage(updatedText);
+    } else {
+      setNewMessage((prev) => prev + emoji);
+    }
+    setShowEmojiPicker(false);
+  };
 
   useEffect(() => {
     if (roomId) {
@@ -68,12 +75,17 @@ const ChatRoomClient = ({ roomId, roomName, user }) => {
       socket.on("user_typing", handleUserTyping);
       socket.on("user_stopped_typing", handleUserStoppedTyping);
       socket.on("error", handleSocketError);
+      const onCallOffer = ({ offer, video, caller }) => {
+        setIncomingCall({ offer, video, caller });
+      };
+      socket.on("call-offer", onCallOffer);
 
       return () => {
         socket.off("new_message", handleNewMessage);
         socket.off("user_typing", handleUserTyping);
         socket.off("user_stopped_typing", handleUserStoppedTyping);
         socket.off("error", handleSocketError);
+        socket.off("call-offer", onCallOffer);
       };
     }
   }, [socket]);
@@ -108,7 +120,6 @@ const ChatRoomClient = ({ roomId, roomName, user }) => {
       const res = await fetch("http://localhost:3000/api/auth/register");
       if (res.ok) {
         const data = await res.json();
-        console.log(data.users);
         setUsers(data.users);
       }
     } catch (error) {
@@ -264,6 +275,15 @@ const ChatRoomClient = ({ roomId, roomName, user }) => {
             {!["2", "3"].includes(roomId) ? (
               <AddUsersToRoom roomId={roomId} currentUserId={user.user.id} />
             ) : null}
+
+            <Link href={`/video-call/${roomId}`}>
+              <button
+                className="p-2 cursor-pointer text-slate-400 hover:text-blue-400 hover:bg-slate-700/50 rounded-lg transition-all duration-200"
+                title="Start Video Call"
+              >
+                <Video className="h-5 w-5" />
+              </button>
+            </Link>
 
             <button className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50 rounded-lg transition-all duration-200">
               <MoreVertical className="h-5 w-5" />
@@ -441,9 +461,38 @@ const ChatRoomClient = ({ roomId, roomName, user }) => {
             )}
           </button>
         </form>
-
-        
       </div>
+      {incomingCall && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm text-center">
+            <h3 className="text-lg font-semibold mb-2">Incoming {incomingCall.video ? 'Video' : 'Voice'} Call</h3>
+            <p className="text-gray-500 mb-4">From: {incomingCall.caller}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  if (socket) socket.emit('call-reject', { roomId, caller: incomingCall.caller });
+                  setIncomingCall(null);
+                }}
+                className="flex-1 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white"
+              >
+                Decline
+              </button>
+              <button
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem('incomingOffer', JSON.stringify({ offer: incomingCall.offer, video: incomingCall.video, caller: incomingCall.caller }));
+                  } catch {}
+                  setIncomingCall(null);
+                  router.push(`/video-call/${roomId}`);
+                }}
+                className="flex-1 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white"
+              >
+                Accept
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

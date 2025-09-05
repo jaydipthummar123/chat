@@ -212,9 +212,17 @@ async function initializeDatabase() {
 // ==================== SOCKET.IO ======================
 const httpServer = createServer();
 
+const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_ALLOWED_ORIGIN || "*";
+
 const io = new Server(httpServer, {
   cors: {
-    origin: "*", // ⚠️ For production: replace with ["https://yourdomain.com"]
+    origin: (origin, callback) => {
+      if (!origin || ALLOWED_ORIGIN === "*" || origin === ALLOWED_ORIGIN) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -237,7 +245,7 @@ io.use((socket, next) => {
   }
 });
 
-// ==================== SOCKET EVENTS ======================
+
 io.on("connection", (socket) => {
   console.log(`✅ User connected: ${socket.user.email}`);
 
@@ -251,6 +259,33 @@ io.on("connection", (socket) => {
   socket.on("leave_room", ({ roomId }) => {
     socket.leave(`room_${roomId}`);
     console.log(`⬅️ ${socket.user.email} left room ${roomId}`);
+  });
+
+  // --- WebRTC Signaling ---
+  socket.on("call-offer", ({ roomId, offer, video, caller }) => {
+    console.log(`📞 Call offer from ${caller} in room ${roomId}`);
+    // include socket.id for correlation if needed
+    socket.to(`room_${roomId}`).emit("call-offer", { offer, video, caller, from: socket.id });
+  });
+
+  socket.on("call-answer", ({ roomId, answer, caller }) => {
+    console.log(`✅ Call answer from ${caller} in room ${roomId}`);
+    socket.to(`room_${roomId}`).emit("call-answer", { answer, caller, from: socket.id });
+  });
+
+  socket.on("ice-candidate", ({ roomId, candidate }) => {
+    socket.to(`room_${roomId}`).emit("ice-candidate", { candidate });
+  });
+
+  socket.on("call-end", ({ roomId }) => {
+    console.log(`📴 Call ended in room ${roomId}`);
+    // broadcast without echo loop; clients guard re-emit with shouldEmit flag
+    socket.to(`room_${roomId}`).emit("call-end");
+  });
+
+  socket.on("call-reject", ({ roomId, caller }) => {
+    console.log(`❌ Call rejected by ${caller} in room ${roomId}`);
+    socket.to(`room_${roomId}`).emit("call-reject", { caller });
   });
 
   // --- Send Message ---

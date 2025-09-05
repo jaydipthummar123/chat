@@ -28,6 +28,20 @@ CREATE TABLE IF NOT EXISTS room_members (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- call_recordings
+CREATE TABLE IF NOT EXISTS call_recordings (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
+  filename VARCHAR(255) NOT NULL,
+  path VARCHAR(500) NOT NULL,
+  duration_sec INT DEFAULT 0,
+  started_by INT NULL,
+  participants TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+  FOREIGN KEY (started_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
 -- messages
 CREATE TABLE IF NOT EXISTS messages (
   id INT AUTO_INCREMENT PRIMARY KEY,

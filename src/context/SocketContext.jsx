@@ -23,7 +23,13 @@ export const SocketProvider = ({ children }) => {
     console.log("🔌 Connecting socket with token:", token);
 
     const newSocket = io("http://localhost:3001", {
+      path: "/api/socket",
       auth: { token },
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      timeout: 20000,
     });
 
     newSocket.on("connect", () => {
