@@ -12,7 +12,7 @@ export const GET = async (req) => {
     const userId = auth.user.id;
 
     // 🔹 Step 2: Get total unread count
-    const [totalResult] = await db.query(
+    const [totalRows] = await db.query(
       `
       SELECT COUNT(*) AS total_unread
       FROM messages m
@@ -23,7 +23,7 @@ export const GET = async (req) => {
       [userId]
     );
 
-    const totalUnread = totalResult?.total_unread || 0;
+    const totalUnread = totalRows?.[0]?.total_unread ?? 0;
 
     // 🔹 Step 3: Get unread count per room
     const [roomsResult] = await db.query(
@@ -51,6 +51,10 @@ export const GET = async (req) => {
     });
   } catch (error) {
     console.error("❌ Error fetching unread counts:", error);
+    if (process.env.NODE_ENV === "production") {
+      // Fail-soft in production to avoid breaking UI when DB is unreachable
+      return Response.json({ totalUnread: 0, roomUnread: [] }, { status: 200 });
+    }
     return Response.json(
       { error: "Failed to fetch unread counts" },
       { status: 500 }
