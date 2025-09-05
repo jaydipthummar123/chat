@@ -22,7 +22,18 @@ export const SocketProvider = ({ children }) => {
 
     console.log("🔌 Connecting socket with token:", token);
 
-    const newSocket = io("http://localhost:3001", {
+    // Prefer explicit public URL in production; fallback to localhost in dev
+    const socketUrl =
+      process.env.NEXT_PUBLIC_SOCKET_URL && process.env.NEXT_PUBLIC_SOCKET_URL.trim().length > 0
+        ? process.env.NEXT_PUBLIC_SOCKET_URL
+        : (process.env.NODE_ENV === "development" ? "http://localhost:3001" : null);
+
+    if (!socketUrl) {
+      console.warn("Socket URL not configured. Set NEXT_PUBLIC_SOCKET_URL for production.");
+      return;
+    }
+
+    const newSocket = io(socketUrl, {
       path: "/api/socket",
       auth: { token },
       transports: ["websocket", "polling"],

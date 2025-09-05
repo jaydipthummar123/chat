@@ -42,6 +42,30 @@ export async function POST(req) {
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
+    const directFile = searchParams.get('file');
+
+    // Direct file streaming (used in production links)
+    if (directFile) {
+      const baseDir = process.env.NODE_ENV === 'production' ? '/tmp' : process.cwd();
+      const filePath = path.join(baseDir, 'recordings', directFile);
+      try {
+        const stat = await fs.promises.stat(filePath);
+        const stream = fs.createReadStream(filePath);
+        const ext = path.extname(directFile).toLowerCase();
+        const contentType = ext === '.webm' ? 'video/webm' : ext === '.mp3' ? 'audio/mpeg' : 'application/octet-stream';
+        return new NextResponse(stream, {
+          status: 200,
+          headers: {
+            'Content-Type': contentType,
+            'Content-Length': String(stat.size),
+            'Cache-Control': 'public, max-age=31536000, immutable'
+          }
+        });
+      } catch (e) {
+        return NextResponse.json({ error: 'File not found' }, { status: 404 });
+      }
+    }
+
     const roomId = searchParams.get('roomId');
     if (!roomId) {
       return NextResponse.json({ error: 'roomId is required' }, { status: 400 });
