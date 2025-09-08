@@ -371,42 +371,6 @@ const VideoCall = ({ roomId, onEndCall, answerOnLoad = false }) => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Ringtone helpers (pure WebAudio, no asset required)
-  // const startRingtone = () => {
-  //   try {
-  //     if (ringCtxRef.current) return;
-  //     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  //     const osc = ctx.createOscillator();
-  //     const gain = ctx.createGain();
-  //     osc.type = 'sine';
-  //     osc.frequency.value = 880; // A5 tone
-  //     gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-  //     osc.connect(gain).connect(ctx.destination);
-  //     osc.start();
-  //     // beep pattern
-  //     let on = true;
-  //     const interval = setInterval(() => {
-  //       on = !on;
-  //       gain.gain.linearRampToValueAtTime(on ? 0.08 : 0.0001, ctx.currentTime + 0.02);
-  //     }, 500);
-  //     ringCtxRef.current = ctx;
-  //     ringOscRef.current = { osc, interval };
-  //     ringGainRef.current = gain;
-  //   } catch {}
-  // };
-
-  // const stopRingtone = () => {
-  //   try {
-  //     const holder = ringOscRef.current;
-  //     if (holder?.interval) clearInterval(holder.interval);
-  //     if (holder?.osc) holder.osc.stop();
-  //     ringCtxRef.current?.close();
-  //   } catch {}
-  //   ringCtxRef.current = null;
-  //   ringOscRef.current = null;
-  //   ringGainRef.current = null;
-  // };
-
   const startRingtone = () => {
   try {
     if (ringCtxRef.current) return; 

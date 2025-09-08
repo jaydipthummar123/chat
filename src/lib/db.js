@@ -8,6 +8,7 @@ const db = mysql.createPool({
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD  || "",
   database: process.env.DB_NAME || "chat_app",
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : undefined,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

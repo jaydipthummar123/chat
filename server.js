@@ -196,6 +196,8 @@ const dbConfig = {
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "chat_app",
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : undefined,
+  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== "false" } : undefined,
 };
 
 async function initializeDatabase() {
@@ -233,7 +235,7 @@ const io = new Server(httpServer, {
 // ==================== AUTH MIDDLEWARE ======================
 io.use((socket, next) => {
   try {
-    const token = socket.handshake.auth?.token;
+    const token = socket.handshake.auth?.token; 
     if (!token) return next(new Error("No token provided"));
 
     const decoded = jwt.verify(token, JWT_SECRET);

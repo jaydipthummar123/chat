@@ -116,7 +116,7 @@ export default function AuthPage() {
                       placeholder="Full Name"
                       className={`w-full pl-12 pr-4 py-4 bg-white/10 border rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 ${errors.name && touched.name ? 'border-red-500' : 'border-white/20'
                         }`}
-                    />
+                    /> 1
                     <User className="absolute left-4 top-[29px] transform -translate-y-1/2 w-5 h-5 text-gray-300" />
                     <ErrorMessage name="name" component="div" className="text-red-400 text-sm mt-2" />
                   </div>
@@ -154,8 +154,6 @@ export default function AuthPage() {
                   </button>
                   <ErrorMessage name="password" component="div" className="text-red-400 text-sm mt-2" />
                 </div>
-
-
                 {/* Submit Button */}
                 <button
                   type="button"
@@ -166,16 +164,12 @@ export default function AuthPage() {
                   {isLoading ? (
                     <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <>
+                     <>
                       <span>{isLogin ? 'Sign In' : 'Sign Up'}</span>
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </>
+                     </>
                   )}
                 </button>
-
-                {/* Social Login Divider */}
-          
-
                 {/* Social Login Buttons */}
                 <div className="grid grid-cols-2 gap-4">
                   <button
