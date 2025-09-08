@@ -57,6 +57,26 @@ export const SocketProvider = ({ children }) => {
       console.error("⚠️ Socket error:", error);
     });
 
+    // Extra diagnostics for production issues (CORS/auth/upgrade)
+    newSocket.on("connect_error", (err) => {
+      console.error("⚠️ Socket connect_error:", {
+        message: err?.message,
+        data: err?.data,
+        name: err?.name,
+        description: err?.description,
+        context: err?.context,
+      });
+    });
+    newSocket.io?.on?.("error", (err) => {
+      console.error("⚠️ Transport error:", err?.message || err);
+    });
+    newSocket.io?.on?.("reconnect_error", (err) => {
+      console.error("⚠️ Reconnect error:", err?.message || err);
+    });
+    newSocket.io?.on?.("upgradeError", (err) => {
+      console.error("⚠️ Upgrade error (websocket):", err?.message || err);
+    });
+
     // Listen for incoming messages
     newSocket.on("receive_message", (message) => {
       console.log("📩 New message:", message);
