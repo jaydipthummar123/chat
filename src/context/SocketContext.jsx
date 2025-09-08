@@ -36,11 +36,14 @@ export const SocketProvider = ({ children }) => {
     const newSocket = io(socketUrl, {
       path: "/api/socket",
       auth: { token },
-      transports: ["websocket", "polling"],
+      // Prefer polling first to avoid websocket proxy/upgrade issues, then upgrade
+      transports: ["polling", "websocket"],
+      upgrade: true,
+      forceNew: true,
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
-      timeout: 20000,
+      timeout: 30000,
     });
 
     newSocket.on("connect", () => {
