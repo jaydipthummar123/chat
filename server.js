@@ -186,7 +186,8 @@ config({ path: ".env.local" });
 
 // ==================== ENV CONFIG ====================
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
-const PORT = process.env.SOCKET_PORT || 3001;
+// Prefer platform-provided PORT (Railway/Render), fallback to SOCKET_PORT, then 3001 locally
+const PORT = process.env.PORT || process.env.SOCKET_PORT || 3001  || process.env.NEXT_PUBLIC_SOCKET_URL;
 
 // ==================== DATABASE ======================
 let db;
@@ -219,7 +220,9 @@ const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_ALLOWED_ORIGIN || "*";
 const io = new Server(httpServer, {
   cors: {
     origin: (origin, callback) => {
-      if (!origin || ALLOWED_ORIGIN === "*" || origin === ALLOWED_ORIGIN) {
+      const allowWildcard = ALLOWED_ORIGIN && ALLOWED_ORIGIN.startsWith("*.");
+      const wildcardMatch = allowWildcard && origin && origin.endsWith(ALLOWED_ORIGIN.slice(1));
+      if (!origin || ALLOWED_ORIGIN === "*" || origin === ALLOWED_ORIGIN || wildcardMatch) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
