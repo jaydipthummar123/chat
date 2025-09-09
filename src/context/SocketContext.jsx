@@ -90,10 +90,28 @@ export const SocketProvider = ({ children }) => {
   }, [token]);
 
   // --- Actions ---
-  const joinRoom = (roomId) => {
-    if (socket && isConnected) {
-      console.log(`➡️ Joining room ${roomId}`);
-      socket.emit("join_room", { roomId });
+  const joinRoom = async (roomId) => {
+    try {
+      // Ensure membership via REST before socket join (server validates membership)
+      const res = await fetch(`/api/rooms/${roomId}/join`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        console.error("Failed to join room via REST:", data?.error || res.statusText);
+        return;
+      }
+
+      if (socket && isConnected) {
+        console.log(`➡️ Joining room ${roomId}`);
+        socket.emit("join_room", { roomId });
+      }
+    } catch (err) {
+      console.error("Join room error:", err?.message || err);
     }
   };
 
