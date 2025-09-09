@@ -22,12 +22,9 @@ export const SocketProvider = ({ children }) => {
 
     console.log("🔌 Connecting socket with token:", token);
 
-    // Prefer explicit public URL in production; fallback to localhost in dev
-    const socketUrl =
-      process.env.NEXT_PUBLIC_SOCKET_URL && process.env.NEXT_PUBLIC_SOCKET_URL.trim().length > 0
-        ? process.env.NEXT_PUBLIC_SOCKET_URL
-        : (process.env.NODE_ENV === "development" ? "http://localhost:3001" : null);
-
+    // Prefer explicit public URL in production; fallback to same origin in production, localhost in dev
+    const socketUrl =process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
+       
     if (!socketUrl) {
       console.warn("Socket URL not configured. Set NEXT_PUBLIC_SOCKET_URL for production.");
       return;

@@ -182,7 +182,7 @@ import jwt from "jsonwebtoken";
 import mysql from "mysql2/promise";
 import { config } from "dotenv";
 
-config({ path: ".env.local" });
+config({ path: ".env" });
 
 // ==================== ENV CONFIG ====================
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
@@ -195,7 +195,7 @@ let db;
 const dbConfig = {
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
+  password: process.env.DB_PASSWORD|| "",
   database: process.env.DB_NAME || "chat_app",
   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : undefined,
   ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== "false" } : undefined,
